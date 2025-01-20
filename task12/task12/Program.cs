@@ -12,112 +12,106 @@ namespace Task12
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Введите целое число m от 5 до 20");
+            Console.WriteLine("Введите целое число m (от 5 до 20):");
             int m;
-
-            if (!TryInputNumber(out m))
+            if (!TryGetNumber(out m) || m < 5 || m > 20)
             {
+                Console.WriteLine("Ошибка: число m должно быть в диапазоне от 5 до 20.");
                 Console.ReadKey();
                 return;
             }
 
-            Console.WriteLine("Введите целое число n");
+            Console.WriteLine("Введите целое число n:");
             int n;
-
-            if (!TryInputNumber(out n))
+            if (!TryGetNumber(out n) || n < 5 || n > 20)
             {
-                Console.ReadKey();
-                return;
-            }
-
-            if (m < 5 || m > 20 || n < 5 || n > 20)
-            {
-                Console.WriteLine("Числа не удовлетворяют неравенству 5 <= m,n <= 20");
+                Console.WriteLine("Ошибка: число n должно быть в диапазоне от 5 до 20.");
                 Console.ReadKey();
                 return;
             }
 
             var matrix = new int[m, n];
-            var rnd = new Random();
-
-            for (int i = 0; i < matrix.GetLength(0); i++)
-                for (int j = 0; j < matrix.GetLength(1); j++)
-                    matrix[i, j] = rnd.Next(100);
+            Random random = new Random();
+            FillMatrix(matrix, random);
 
             Console.WriteLine("\nСгенерированная матрица:");
-            PrintMatrix(matrix);
+            DisplayMatrix(matrix);
 
             Console.WriteLine("\nВведите число для проверки:");
-            if (!TryInputNumber(out int checkNumber))
+            if (!TryGetNumber(out int checkNumber))
             {
                 Console.ReadKey();
                 return;
             }
 
-            CheckNumberInMatrix(matrix, checkNumber);
+            SearchInMatrix(matrix, checkNumber);
 
             Console.WriteLine("\nСреднее арифметическое для каждого столбца:");
-            CalculateColumnAverages(matrix);
-
+            ComputeColumnAverages(matrix);
             Console.ReadKey();
         }
 
-        static bool TryInputNumber(out int number)
+        static bool TryGetNumber(out int number)
         {
             number = 0;
-            if (!int.TryParse(Console.ReadLine(), out int n))
-            {
-                Console.WriteLine("Ошибка ввода");
-                return false;
-            }
-
-            number = n;
-            return true;
+            return int.TryParse(Console.ReadLine(), out number);
         }
 
-        static void PrintMatrix(int[,] matrix)
+        static void FillMatrix(int[,] matrix, Random random)
         {
-            for (int i = 0; i < matrix.GetLength(0); i++)
+            for (int row = 0; row < matrix.GetLength(0); row++)
             {
-                for (int j = 0; j < matrix.GetLength(1); j++)
-                    Console.Write($"{matrix[i, j],3} ");
+                for (int col = 0; col < matrix.GetLength(1); col++)
+                {
+                    matrix[row, col] = random.Next(100);
+                }
+            }
+        }
 
+        static void DisplayMatrix(int[,] matrix)
+        {
+            for (int row = 0; row < matrix.GetLength(0); row++)
+            {
+                for (int col = 0; col < matrix.GetLength(1); col++)
+                {
+                    Console.Write($"{matrix[row, col],3} ");
+                }
                 Console.WriteLine();
             }
         }
 
-        static void CheckNumberInMatrix(int[,] matrix, int number)
+        static void SearchInMatrix(int[,] matrix, int number)
         {
-            bool found = false;
-
-            for (int i = 0; i < matrix.GetLength(0); i++)
+            bool isFound = false;
+            for (int row = 0; row < matrix.GetLength(0); row++)
             {
-                for (int j = 0; j < matrix.GetLength(1); j++)
+                for (int col = 0; col < matrix.GetLength(1); col++)
                 {
-                    if (matrix[i, j] > number)
+                    if (matrix[row, col] > number)
                     {
-                        Console.WriteLine($"Элемент больше заданного числа найден: строка {i}, столбец {j}");
-                        found = true;
-                        return; // Можно сразу выйти, так как достаточно первого совпадения
+                        Console.WriteLine($"Элемент больше заданного числа найден: строка {row}, столбец {col}");
+                        isFound = true;
+                        return; 
                     }
                 }
             }
-
-            if (!found)
+            if (!isFound)
+            {
                 Console.WriteLine("Элементов больше заданного числа нет.");
+            }
         }
 
-        static void CalculateColumnAverages(int[,] matrix)
+        static void ComputeColumnAverages(int[,] matrix)
         {
-            for (int j = 0; j < matrix.GetLength(1); j++)
+            for (int col = 0; col < matrix.GetLength(1); col++)
             {
-                double sum = 0;
-
-                for (int i = 0; i < matrix.GetLength(0); i++)
-                    sum += matrix[i, j];
-
-                double average = sum / matrix.GetLength(0);
-                Console.WriteLine($"Столбец {j}: среднее арифметическое = {average:F2}");
+                double total = 0;
+                for (int row = 0; row < matrix.GetLength(0); row++)
+                {
+                    total += matrix[row, col];
+                }
+                double average = total / matrix.GetLength(0);
+                Console.WriteLine($"Столбец {col}: среднее арифметическое = {average:F2}");
             }
         }
     }
